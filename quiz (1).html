@@ -1,0 +1,313 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>আজাইরা কুইজ</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0f8ff;
+      text-align: center;
+    }
+    .container {
+      max-width: 500px;
+      margin: auto;
+      padding: 20px;
+      position: relative;
+    }
+    h2 {
+      color: #333;
+      margin-top: 60px;
+    }
+    .topic-btn {
+      display: block;
+      background-color: #ffe0e6;
+      color: #333;
+      margin: 10px auto;
+      padding: 12px;
+      border-radius: 10px;
+      border: 2px solid #ff4081;
+      cursor: pointer;
+      font-size: 18px;
+      transition: 0.3s;
+    }
+    .topic-btn:hover {
+      background-color: #ff4081;
+      color: white;
+    }
+    .topic-btns {
+      display: flex;
+      justify-content: space-evenly;
+      gap: 10px;
+      margin-top: 30px;
+    }
+    .question-box, .result-box {
+      display: none;
+    }
+    .question-header {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .timer-bar {
+      width: 100%;
+      height: 12px;
+      background: #ddd;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      width: 100%;
+      transition: width 1s linear, background 1s linear;
+    }
+    .options button {
+      display: block;
+      width: 100%;
+      min-height: 50px;
+      margin: 8px 0;
+      padding: 10px;
+      border: 2px solid #aaa;
+      border-radius: 10px;
+      background-color: white;
+      cursor: pointer;
+      font-size: 16px;
+      box-sizing: border-box;
+      transition: background-color 0.3s;
+    }
+    .options button:hover {
+      background-color: #e0f7fa;
+    }
+    .control-btns button {
+      margin: 10px;
+      padding: 8px 16px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .submit-btn { background-color: #4caf50; color: white; }
+    .skip-btn { background-color: #9e9e9e; color: white; }
+    .result-circle {
+      width: 120px;
+      height: 120px;
+      margin: 20px auto;
+      border-radius: 50%;
+      background-color: #e1f5fe;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: bold;
+      color: #0288d1;
+    }
+    .summary {
+      background: white;
+      padding: 10px;
+      border-radius: 12px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .back-btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #0288d1;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .cut-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 35px;
+      height: 35px;
+      background-color: #ffebee;
+      border-radius: 50%;
+      border: 2px solid #f44336;
+      font-weight: bold;
+      color: #f44336;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <button class="cut-btn" id="cutBtn" onclick="goBack()">×</button>
+    <div id="topicSelect">
+      <h2>কুইজের টপিক সিলেক্ট করুন:</h2>
+      <div class="topic-btns">
+        <button class="topic-btn" onclick="startQuiz('freefire')">ফ্রী ফায়ার বিষয়ক</button>
+        <button class="topic-btn" onclick="startQuiz('biri')">বিড়ি বিষয়ক</button>
+      </div>
+    </div>
+    <div class="question-box" id="quizBox">
+      <div class="question-header" id="questionHeader"></div>
+      <div class="timer-bar"><div class="bar-fill" id="barFill"></div></div>
+      <div class="question" id="questionText"></div>
+      <div class="options" id="optionButtons"></div>
+      <div class="control-btns">
+        <button class="submit-btn" onclick="submitAnswer()">Submit</button>
+        <button class="skip-btn" onclick="nextQuestion()">Skip</button>
+      </div>
+    </div>
+    <div class="result-box" id="resultBox">
+      <button class="cut-btn" onclick="goBack()">×</button>
+      <div class="result-circle" id="resultPercent">0%</div>
+      <div class="summary">
+        <p>মোট পয়েন্টস: <span id="totalPoints">0</span> 🪙</p>
+        <p>সঠিক উত্তর: <span id="correctCount">0</span> টি</p>
+        <p>ভুল/স্কিপ করেছেন: <span id="wrongCount">0</span> টি</p>
+        <button class="back-btn" onclick="goBack()">Back</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const questions = {
+      freefire: [
+        {
+          q: "Free Fire কোন দেশের তৈরি?",
+          o: ["ভারত", "বাংলাদেশ", "সিঙ্গাপুর", "চীন"],
+          a: 2
+        },
+        {
+          q: "Free Fire সর্বপ্রথম কবে রিলিজ হয়?",
+          o: ["২০১৭", "২০১৮", "২০১৯", "২০২০"],
+          a: 0
+        },
+        {
+          q: "Free Fire এর ডেভেলপার কে?",
+          o: ["PUBG Corp", "Garena", "Tencent", "Epic Games"],
+          a: 1
+        },
+        {
+          q: "Free Fire এ কতজন প্লেয়ার একসাথে খেলে?",
+          o: ["৫০ জন", "১০০ জন", "৭৫ জন", "২৫ জন"],
+          a: 0
+        },
+        {
+          q: "Free Fire Max কবে রিলিজ হয়?",
+          o: ["২০২০", "২০২১", "২০২২", "২০২৩"],
+          a: 1
+        }
+      ],
+      biri: [
+        {
+          q: "বিড়ি কী জিনিস দিয়ে তৈরি?",
+          o: ["কাগজ", "তামাক", "পাতা", "বালি"],
+          a: 2
+        },
+        {
+          q: "বিড়ি কোন শিল্পের অন্তর্ভুক্ত?",
+          o: ["কৃষি", "হস্তশিল্প", "তামাক শিল্প", "ইলেকট্রনিক"],
+          a: 2
+        },
+        {
+          q: "বিড়ি খাওয়া কিসের জন্য ক্ষতিকর?",
+          o: ["চোখ", "নাক", "হাত", "স্বাস্থ্য"],
+          a: 3
+        },
+        {
+          q: "বিড়ি বেশি খেলে কী হতে পারে?",
+          o: ["আনন্দ", "রোগ", "উচ্চতা", "শক্তি"],
+          a: 1
+        },
+        {
+          q: "বিড়ি প্যাকেটে সাধারণত কী লেখা থাকে?",
+          o: ["খাবার নয়", "স্বাস্থ্য সতর্কতা", "মজা পেতে", "সস্তা দাম"],
+          a: 1
+        }
+      ]
+    };
+
+    let quizData = [], index = 0, correct = 0, totalPoints = 0;
+    let timer, seconds = 10;
+
+    function startQuiz(topic) {
+      quizData = questions[topic];
+      index = correct = totalPoints = 0;
+      document.getElementById("topicSelect").style.display = "none";
+      document.getElementById("quizBox").style.display = "block";
+      showQuestion();
+    }
+
+    function showQuestion() {
+      clearInterval(timer);
+      if (index >= quizData.length) return showResult();
+
+      const q = quizData[index];
+      document.getElementById("questionHeader").innerText = `প্রশ্ন ${index + 1} / ${quizData.length}`;
+      document.getElementById("questionText").innerText = q.q;
+
+      const optionButtons = document.getElementById("optionButtons");
+      optionButtons.innerHTML = "";
+      q.o.forEach((opt, i) => {
+        const btn = document.createElement("button");
+        btn.innerText = opt;
+        btn.onclick = () => selectOption(i, btn);
+        optionButtons.appendChild(btn);
+      });
+
+      seconds = 10;
+      updateBar();
+      timer = setInterval(() => {
+        seconds--;
+        updateBar();
+        if (seconds <= 0) {
+          clearInterval(timer);
+          nextQuestion();
+        }
+      }, 1000);
+    }
+
+    let selectedOption = -1;
+    function selectOption(i, btn) {
+      selectedOption = i;
+      const all = document.querySelectorAll("#optionButtons button");
+      all.forEach(b => b.style.background = "white");
+      btn.style.background = "#c8e6c9";
+    }
+
+    function submitAnswer() {
+      if (selectedOption === -1) return;
+      if (selectedOption === quizData[index].a) {
+        correct++;
+        totalPoints += 5;
+      }
+      selectedOption = -1;
+      index++;
+      showQuestion();
+    }
+
+    function nextQuestion() {
+      selectedOption = -1;
+      index++;
+      showQuestion();
+    }
+
+    function updateBar() {
+      const bar = document.getElementById("barFill");
+      const percent = (seconds / 10) * 100;
+      bar.style.width = percent + "%";
+      bar.style.background = seconds > 3 ? "#4caf50" : "#f44336";
+    }
+
+    function showResult() {
+      document.getElementById("quizBox").style.display = "none";
+      document.getElementById("resultBox").style.display = "block";
+      document.getElementById("totalPoints").innerText = totalPoints;
+      document.getElementById("correctCount").innerText = correct;
+      document.getElementById("wrongCount").innerText = quizData.length - correct;
+      document.getElementById("resultPercent").innerText = Math.round((correct / quizData.length) * 100) + "%";
+    }
+
+    function goBack() {
+      window.location.href = "index.html"; // Redirect to index.html
+    }
+  </script>
+</body>
+</html>
